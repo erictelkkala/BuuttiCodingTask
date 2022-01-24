@@ -32,7 +32,7 @@ console.log('Server started at http://localhost:' + port);
 // --------------------------------------------------
 
 // Variables for the database
-const database = "database.db";
+const database = "database/database.db";
 const db = new sqlite3.Database(database);
 
 //Creates a new database if it doesn't exist
@@ -41,37 +41,47 @@ function createDatabase(database){
         console.log("creating database file");
         fs.openSync(database, "w");
         //Creates the table for the database using a SQL statement
-        db.run("CREATE TABLE IF NOT EXISTS book_db (id INTEGER PRIMARY KEY, title TEXT, author TEXT, description TEXT)", function(createResult){
+        db.run("CREATE TABLE book_db (id INTEGER PRIMARY KEY, title TEXT, author TEXT, description TEXT)", function(createResult){
             if(createResult) throw createResult;
+            console.log("Database created");
         });
         console.log("database initialized");
     }
-    return db;
-}
+    return db.toString();
+};
 
 // Add a new book to the database, id is not needed since it's auto incremented
-function add_to_database(title, author, description){
+async function add_to_database(title, author, description){
+    if(!fs.existsSync(database)){
+        console.log("database file does not exist");
+        await createDatabase(database);
+    }
     db.run("INSERT INTO book_db (title, author, description) VALUES (?, ?, ?)", [title, author, description], function(insertResult){
         if(insertResult) throw insertResult;
     });
-}
+};
 
 // Get all books from the database
-function read_all_from_database(){
+async function read_all_from_database(){
+    if(!fs.existsSync(database)){
+        console.log("database file does not exist");
+        await createDatabase(database);
+    }
     db.all("SELECT * FROM book_db", function(err, rows){
         if(err) throw err;
         console.log(rows);
     });
-}
+};
 
 // Delete a book from the database with an id
 function delete_from_database(id){
     db.run("DELETE FROM book_db WHERE id = ?", [id], function(deleteResult){
         if(deleteResult) throw deleteResult;
     });
-}
+};
 
 //Load the database
-createDatabase("database.db");
-// add_to_database('The Great Gatsby', 'F. Scott Fitzgerald', 'The Great Gatsby is a 1925 novel written by American author F. Scott Fitzgerald. The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted as "gin was the national drink and');
+createDatabase(database);
+
+add_to_database('The Great Gatsby', 'F. Scott Fitzgerald', 'The Great Gatsby is a 1925 novel written by American author F. Scott Fitzgerald. The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted as "gin was the national drink and');
 read_all_from_database();
