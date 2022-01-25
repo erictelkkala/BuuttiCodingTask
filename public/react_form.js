@@ -33,5 +33,5 @@ class Form extends React.Component {
 // Render the form at the root element
 ReactDOM.render(
     <Form />,
-    document.getElementById('root')
+    document.getElementById('form-left')
 );
