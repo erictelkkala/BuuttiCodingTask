@@ -19,8 +19,12 @@
   },
   "homepage": "https://github.com/erictelkkala/BuuttiCodingTask#readme",
   "dependencies": {
+    "body-parser": "^1.19.1",
     "express": "^4.17.2",
     "open": "^8.4.0",
     "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "prettier": "2.5.1"
   }
 }
