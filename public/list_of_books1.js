@@ -29,7 +29,7 @@ function Books() {
     }
 
     // function to send a delete request to the API with an id as a parameter
-    const deleteBook = (id) => {
+    function deleteBook(id) {
         // Use the API route and the parameter at the end of the URI
         fetch('/api/deleteBook/' + id, {
             // Use the POST method to send the request

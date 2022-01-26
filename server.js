@@ -37,6 +37,8 @@ app.get('/api/getData', function (req, res) {
     })
 })
 
+// --- POST requests ---
+// Deletes a book from the database
 app.post('/api/deleteBook/:id', function (req, res) {
     console.log(req.params.id.typeof)
     //Deletes the book with the specified id from the database
@@ -46,6 +48,19 @@ app.post('/api/deleteBook/:id', function (req, res) {
     })
 })
 
+// Adds a new book to the database
+app.post('/api/addBook', function (req, res) {
+    //Adds a new book to the database
+    db.run(
+        'INSERT INTO book_db (title, author, description) VALUES (?, ?, ?)',
+        [req.body.title, req.body.author, req.body.description],
+
+        function (err) {
+            if (err) throw err
+            res.send('Book added')
+        }
+    )
+})
 //Printing a message in the console when the server is started
 app.listen(port)
 console.log('Server started at http://localhost:' + port)

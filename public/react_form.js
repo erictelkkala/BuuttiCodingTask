@@ -1,11 +1,20 @@
+const readBooks = require('list_of_books1.js')
 class Form extends React.Component {
     constructor(props) {
         super(props)
     }
 
-    //Handle the submit action
+    // Send the form data to the server using a POST request
     handleSubmit(event) {
         event.preventDefault()
+        const data = new FormData(event.target)
+        fetch('/', {
+            method: 'POST',
+            body: data,
+        })
+            .then((response) => response.text())
+            .then((result) => console.log(result))
+            .then(() => readBooks())
     }
 
     // Form
