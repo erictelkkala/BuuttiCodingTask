@@ -1,12 +1,19 @@
+// Express.js
 const express = require('express')
+// Body-parser
 const bodyParser = require('body-parser')
 const path = require('path')
 const open = require('open')
+// Filesystem
 const fs = require('fs')
+// Multer for parsing multipart/form-data
+const multer = require('multer')
+// Initialize multer
+const form = multer()
 // Database module
 const sqlite3 = require('sqlite3').verbose()
 
-//Configure the express server
+//Configure the express app
 const app = express()
 const port = process.env.PORT || 8080
 
@@ -15,8 +22,8 @@ open('http://localhost:' + port)
 
 //Sets the path to the public folder
 app.use(express.static('public'))
-app.use(bodyParser.json()) // for parsing application/json !! requires () to function
-// app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json()) // for parsing application/json !! requires () to function !!
+app.use(form.array()) // for parsing multipart/form-data
 
 //Serves the initial page on start and redirects back to with an empty address
 app.get('/', function (req, res) {
@@ -40,7 +47,6 @@ app.get('/api/getData', function (req, res) {
 // --- POST requests ---
 // Deletes a book from the database
 app.post('/api/deleteBook/:id', function (req, res) {
-    console.log(req.params.id.typeof)
     //Deletes the book with the specified id from the database
     db.run('DELETE FROM book_db WHERE id = ?', [req.params.id], function (err) {
         if (err) throw err
