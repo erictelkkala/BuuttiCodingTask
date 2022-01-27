@@ -67,6 +67,21 @@ app.post('/api/addBook', function (req, res) {
         }
     )
 })
+
+// Updates a book in the database
+app.post('/api/updateBook', function (req, res) {
+    //Updates the book with the specified id in the database
+    db.run(
+        'UPDATE book_db SET title = ?, author = ?, description = ? WHERE id = ?',
+        [req.body.title, req.body.author, req.body.description, req.body.id],
+
+        function (err) {
+            if (err) throw err
+            res.send('Book updated')
+        }
+    )
+})
+
 //Printing a message in the console when the server is started
 app.listen(port)
 console.log('Server started at http://localhost:' + port)
