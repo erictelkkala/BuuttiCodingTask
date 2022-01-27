@@ -82,7 +82,7 @@ const db = new sqlite3.Database(database)
 //Creates a new database if it doesn't exist
 function createDatabase(database) {
     if (!fs.existsSync(database)) {
-        console.log('creating database file')
+        console.log('Creating database')
         fs.openSync(database, 'w')
         //Creates the table for the database using a SQL statement
         db.run(
@@ -92,52 +92,10 @@ function createDatabase(database) {
                 console.log('Database created')
             }
         )
-        console.log('database initialized')
+        console.log('Database file exists')
     }
-    console.log('database file exists')
+    console.log('Database initialized')
 }
-
-// Add a new book to the database, id is not needed since it's auto incremented
-// async function add_to_database(title, author, description) {
-//     if (!fs.existsSync(database)) {
-//         console.log('database file does not exist')
-//         await createDatabase(database)
-//     }
-//     db.run(
-//         'INSERT INTO book_db (title, author, description) VALUES (?, ?, ?)',
-//         [title, author, description],
-//         function (insertResult) {
-//             if (insertResult) throw insertResult
-//         }
-//     )
-// }
-
-// Get all books from the database
-// async function read_all_from_database(){
-//     if(!fs.existsSync(database)){
-//         console.log("database file does not exist");
-//         await createDatabase(database);
-//     }
-//     await db.all("SELECT * FROM book_db", function(err, rows){
-//         if(err) throw err;
-//         return rows;
-//         // console.log(rows);
-//     });
-// };
-
-// Delete a book from the database with an id
-// function delete_from_database(id) {
-//     db.run('DELETE FROM book_db WHERE id = ?', [id], function (deleteResult) {
-//         if (deleteResult) throw deleteResult
-//     })
-// }
 
 //Load the database
 createDatabase(database)
-
-// add_to_database(
-//     'The Great Gatsby',
-//     'F. Scott Fitzgerald',
-//     'The Great Gatsby is a 1925 novel written by American author F. Scott Fitzgerald. The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted as "gin was the national drink and'
-// )
-// read_all_from_database();

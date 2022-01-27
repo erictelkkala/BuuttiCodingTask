@@ -1,8 +1,10 @@
 function Books() {
+    // Variables for states
     const [error, setError] = React.useState(null)
     const [isLoaded, setIsLoaded] = React.useState(false)
     const [items, setItems] = React.useState([])
 
+    // Run the readBooks function at the start of render
     React.useState(() => {
         readBooks()
     }, [])
@@ -94,22 +96,39 @@ function Books() {
                 <div className="col-md" id="form-left">
                     {/*Use the handleSubmit function when submitting the form*/}
                     <form onSubmit={handleSubmit} id="form">
-                        <label>
-                            Title:
-                            <input type="text" id="title" name="title" />
-                        </label>
-                        <label>
-                            Author:
-                            <input type="text" id="author" name="author" />
-                        </label>
-                        <label>
-                            Description:
+                        <div className="mb-4">
+                            <label htmlFor="title" className="form-label">
+                                Title:
+                            </label>
                             <input
                                 type="text"
+                                className="form-control"
+                                id="title"
+                                name="title"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="author" className="form-label">
+                                Author:
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="author"
+                                name="author"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="description" className="form-label">
+                                Description:
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control"
                                 id="description"
                                 name="description"
                             />
-                        </label>
+                        </div>
                         <input
                             type="submit"
                             className="btn btn-primary"
@@ -121,28 +140,41 @@ function Books() {
                     <ul className="list-group list-group-flush">
                         <div className="vstack gap-2">
                             {/* Maps the item array and creates a list item with the item values*/}
-                            {items.map((item) => (
-                                <li key={item.id} className="list-group-item">
-                                    <div className="d-flex w-100 justify-content-between">
-                                        <h3>{item.title}</h3>
-                                        <small>
-                                            <button
-                                                type="button"
-                                                className="btn btn-danger"
-                                                onClick={() =>
-                                                    deleteBook(item.id)
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-                                        </small>
-                                    </div>
-                                    <div className="small fw-bolder">
-                                        {item.author}
-                                    </div>
-                                    {item.description}
-                                </li>
-                            ))}
+                            {/* Conditional rendering, so this will render if there are books in the items useState*/}
+                            {items.length > 0 &&
+                                items.map((item) => (
+                                    <li
+                                        key={item.id}
+                                        className="list-group-item"
+                                    >
+                                        <div className="d-flex w-100 justify-content-between">
+                                            <h3>{item.title}</h3>
+                                            <small>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-danger"
+                                                    onClick={() =>
+                                                        deleteBook(item.id)
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+                                            </small>
+                                        </div>
+                                        <div className="small fw-bolder">
+                                            {item.author}
+                                        </div>
+                                        <p className="text-break">
+                                            {item.description}
+                                        </p>
+                                    </li>
+                                ))}
+                            {/* This will be rendered if the items useState is empty*/}
+                            {items.length === 0 && (
+                                <div className="d-flex w-100 justify-content-center">
+                                    <h4>No books added yet</h4>
+                                </div>
+                            )}
                         </div>
                     </ul>
                 </div>
