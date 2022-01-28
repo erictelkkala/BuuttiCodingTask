@@ -3,18 +3,22 @@ function Books() {
     const [error, setError] = React.useState(null)
     const [isLoaded, setIsLoaded] = React.useState(false)
     const [items, setItems] = React.useState([])
+    // Variable to determine the action that the user is performing (Submit or Save)
+    const [submitButtonId, setSubmitButtonId] = React.useState('submit-button')
+    const [itemId, setItemId] = React.useState(0)
 
     // Run the readBooks function at the start of render
-    React.useState(() => {
+    React.useEffect(() => {
+        // No need to handle the promise, since it's handled by the function itself, so it returns undefined here
         readBooks()
     }, [])
 
     // --------------------------------------------------
     // ------------------ FUNCTIONS ---------------------
     // Read all the books from the database
-    function readBooks() {
+    async function readBooks() {
         // Use the API route
-        fetch('/api/getData')
+        await fetch('/api/getData')
             // Convert the response to JSON
             .then((res) => res.json())
             .then(
@@ -32,10 +36,10 @@ function Books() {
             )
     }
 
-    // function to send a delete request to the API with an id as a parameter
-    function deleteBook(id) {
+    // Function to send a delete request to the API with an id as a parameter
+    async function deleteBook(id) {
         // Use the API route and the parameter at the end of the URI
-        fetch('/api/deleteBook/' + id, {
+        await fetch('/api/deleteBook/' + id, {
             // Use the POST method to send the request
             method: 'POST',
         })
@@ -57,57 +61,78 @@ function Books() {
     }
 
     // Send the form data to the server using a POST request
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
+        // Prevent the page from reloading
         event.preventDefault()
-        const data = new FormData(event.target)
-        fetch('/api/addBook', {
-            method: 'POST',
-            body: data,
-        })
-            .then((response) => response.text())
-            .then((result) => console.log(result))
-            .then(() => readBooks())
-            //Clear the value of the form if successful
-            .then(() => document.getElementById('form').reset())
+        // Check the value of the useState variable submitButtonId
+        // Add a book if it's equal to submit-button
+        if (submitButtonId === 'submit-button') {
+            // Create a new FromData object from the event.target
+            const data = new FormData(event.target)
+            fetch('/api/addBook', {
+                // Use the POST method to send the request
+                method: 'POST',
+                // Set the body of the request to the FormData object
+                body: data,
+            })
+                // Process the response
+                .then((response) => response.text())
+                .then((result) => console.log(result))
+                // Then rerender the list of book so that you can see the new book
+                .then(() => readBooks())
+                //Clear the value of the form if successful
+                .then(() => document.getElementById('form').reset())
+            // If the value of the submitButtonId is 'save-button'
+        } else if (submitButtonId === 'save-button') {
+            // Create a new FromData object from the event.target
+            const data = new FormData(event.target)
+            // Add an id key to the formData object using append, so that the API knows which book to update
+            data.append('id', itemId)
+            // Enable the submit button again and disable the save button
+            document.getElementById('submit-button').disabled = false
+            document.getElementById('save-button').disabled = true
+            await fetch('/api/updateBook', {
+                method: 'POST',
+                body: data,
+            })
+                // See above for the process of the response
+                .then((response) => response.text())
+                .then((result) => console.log(result))
+                //Clear the value of the form if successful
+                .then(() => cancelEdit())
+                // Then rerender the component with the readBooks function
+                .then(() => readBooks())
+        } else {
+            // Else log that the submit button id is not equal to either of the two
+            console.log(
+                'Submit button id not found or is not equal to either of the two'
+            )
+        }
     }
 
-    // TODO: Move the submitting to the backend so that you can switch between submit types
-
     // Open the data of the book in the pre-existing form so that you can edit it
-    function openEdit(item) {
-        // Disables the submit button and enables the save button
+    async function openEdit(item) {
+        // Disables the submit button and enables the save and cancel buttons
         document.getElementById('submit-button').disabled = true
         document.getElementById('save-button').disabled = false
         document.getElementById('cancel-button').disabled = false
+
         // Then set the form values to the values in the book that is edited
         document.getElementById('title').value = item.title
         document.getElementById('author').value = item.author
         document.getElementById('description').value = item.description
-    }
-
-    // Send data to the server to modify an existing book in the database
-    function handleEdit(event) {
-        event.preventDefault()
-        const data = new FormData(event.target)
-        document.getElementById('submit-button').disabled = false
-        document.getElementById('save-button').disabled = true
-        fetch('/api/editBook', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        })
-            .then((response) => response.text())
-            .then((result) => console.log(result))
-            .then(() => readBooks())
-            //Clear the value of the form if successful
-            .then(() => cancelEdit())
+        // Set the itemId state to the id of the book that is being edited
+        setItemId(item.id)
+        await setSubmitButtonId('save-button')
     }
 
     // Reset the form and enable the 2 disabled buttons on cancel
-    function cancelEdit() {
+    async function cancelEdit() {
         document.getElementById('submit-button').disabled = false
         document.getElementById('save-button').disabled = true
         document.getElementById('cancel-button').disabled = true
         document.getElementById('form').reset()
+        await setSubmitButtonId('submit-button')
     }
 
     // --------------------------------------------------
@@ -133,6 +158,8 @@ function Books() {
             <div className="row">
                 {/*        Column container-->*/}
                 <div className="col-md" id="form-left">
+                    {/*------------------------------------------------------*/}
+                    {/*------------------------FORM--------------------------*/}
                     {/*Use the handleSubmit function when submitting the form*/}
                     <form
                         onSubmit={handleSubmit}
@@ -148,6 +175,7 @@ function Books() {
                                 className="form-control"
                                 id="title"
                                 name="title"
+                                required={true}
                             />
                         </div>
                         <div className="mb-4">
@@ -159,6 +187,7 @@ function Books() {
                                 className="form-control"
                                 id="author"
                                 name="author"
+                                required={true}
                             />
                         </div>
                         <div className="mb-4">
@@ -170,25 +199,30 @@ function Books() {
                                 className="form-control"
                                 id="description"
                                 name="description"
+                                required={true}
                             />
                         </div>
+                        {/*Buttons on the bottom of the form*/}
                         <button
-                            type="submit"
+                            form={'form'}
                             id="submit-button"
                             className="btn btn-primary mr-2"
+                            type={'submit'}
+                            disabled={false}
                         >
                             Save new book
                         </button>
                         <button
-                            type="button"
+                            form={'form'}
                             id="save-button"
                             className="btn btn-success mx-2"
-                            onClick={handleEdit.bind(this)}
+                            type={'submit'}
                             disabled={true}
                         >
                             Save changes
                         </button>
                         <button
+                            form={'form'}
                             type="reset"
                             id="cancel-button"
                             className="btn btn-secondary ml-2"
@@ -198,8 +232,13 @@ function Books() {
                         </button>
                     </form>
                 </div>
+                {/*------------------------------------------------------*/}
+                {/*---------------------RIGHT SIDE-----------------------*/}
+                {/*The stack of items on the right*/}
                 <div className="col-md" id="form-right">
+                    {/*Group the items into a list*/}
                     <ul className="list-group list-group-flush">
+                        {/*Make the list vertical with a small gap in between*/}
                         <div className="vstack gap-2">
                             {/* Maps the item array and creates a list item with the item values*/}
                             {/* Conditional rendering, so this will render if there are books in the items useState*/}
@@ -209,7 +248,9 @@ function Books() {
                                         key={item.id}
                                         className="list-group-item"
                                     >
+                                        {/*Each item has a flex-box in the row direction*/}
                                         <div className="d-flex w-100 flex-row">
+                                            {/*Then there's the left side of the item with max width, which gets overruled by the static 90px on the right side element*/}
                                             <div className="d-flex flex-column justify-content-start w-100">
                                                 <h3>{item.title}</h3>
                                                 <div className="small fw-bolder">
@@ -219,9 +260,11 @@ function Books() {
                                                     {item.description}
                                                 </p>
                                             </div>
+                                            {/*Right side element with the static 90px width*/}
+                                            {/*The element is vertical so that the buttons don't take up too much space*/}
                                             <div
                                                 className="d-flex flex-column justify-content-start vstack gap-2"
-                                                style={{ width: '100px' }}
+                                                style={{ width: '90px' }}
                                             >
                                                 <button
                                                     type="button"

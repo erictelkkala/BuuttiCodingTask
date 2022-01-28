@@ -37,7 +37,7 @@ app.get('/api/getData', function (req, res) {
         console.log('database file does not exist')
         createDatabase(database)
     }
-    db.all('SELECT * FROM book_db', function (err, rows) {
+    db.all('SELECT * FROM book_db ORDER BY id DESC', function (err, rows) {
         if (err) throw err
         res.send(rows)
         // console.log(rows)
@@ -63,6 +63,7 @@ app.post('/api/addBook', function (req, res) {
 
         function (err) {
             if (err) throw err
+            // Send a response if the update was successful
             res.send('Book added')
         }
     )
@@ -71,19 +72,24 @@ app.post('/api/addBook', function (req, res) {
 // Updates a book in the database
 app.post('/api/updateBook', function (req, res) {
     //Updates the book with the specified id in the database
+
+    // REQUIRES 4 keys in the request body, otherwise  the update will fail
+
     db.run(
         'UPDATE book_db SET title = ?, author = ?, description = ? WHERE id = ?',
         [req.body.title, req.body.author, req.body.description, req.body.id],
 
         function (err) {
             if (err) throw err
+            // Send a response if the update was successful
             res.send('Book updated')
         }
     )
 })
 
-//Printing a message in the console when the server is started
+// Listen to the post previously defined
 app.listen(port)
+// Print a message in the console when the server is started
 console.log('Server started at http://localhost:' + port)
 
 // --------------------------------------------------
@@ -94,8 +100,9 @@ console.log('Server started at http://localhost:' + port)
 const database = 'database/database.db'
 const db = new sqlite3.Database(database)
 
-//Creates a new database if it doesn't exist
+//Creates a new database
 function createDatabase(database) {
+    // If a database does not exist, create a new one
     if (!fs.existsSync(database)) {
         console.log('Creating database')
         fs.openSync(database, 'w')
@@ -107,9 +114,9 @@ function createDatabase(database) {
                 console.log('Database created')
             }
         )
-        console.log('Database file exists')
     }
-    console.log('Database initialized')
+    // If a database does exist, use that
+    console.log('Database file exists, loading the database')
 }
 
 //Load the database

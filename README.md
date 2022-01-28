@@ -37,6 +37,7 @@ npm start
 - SQLite is also a tough place, I looked at MongoDB and Redis, but I think they are a bit too large for this need, but
   would be easy to switch to if needed
 - I also only used Bootstrap for the front-end, since I don't really see a need to make a custom solution for 2 divs
+- Babel also isn't really taken into account in this project, but I think webpack would've been needed with it
 
 ## ReactJS
 
@@ -44,10 +45,12 @@ npm start
 - I feel like ReactJS is really restrictive when used "bare"
   - I didn't use the create-react-app package, I just used the CDN version
   - I would've used Next.js for this instead, but this was just a React task to do
+  - There was a problem with the form submission, React didn't want to work with 2 buttons at all, so instead of a nice
+    solution I had to resort to useStates :(
 
 ## NodeJS
 
 - First time using JavaScript as the back-end to an app, but I found it pretty good to use
 - ExpressJS is a good choice for this, it's a nice framework with a variety of plugins to help with the routing and
   handling of requests
-- 
+- NodeJS in general is super flexible, so I like how it works and how you can customise it with different packages
